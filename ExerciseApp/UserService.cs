@@ -16,7 +16,7 @@ namespace ExerciseApp
 
             SetCreditLimit(user);
 
-            if (!Validate(user)) return false;
+            if (Validate(user)) return false;
 
             UserDataAccess.AddUser(user);
 
@@ -24,7 +24,7 @@ namespace ExerciseApp
         }
 
         private User CreateUser(string firstname, string surname, string email, DateTime dateOfBirth, int customerId)
-            => new User { Firstname = firstname, Surname = surname, EmailAddress = email, DateOfBirth = dateOfBirth, Customer = _customerRepository.GetById(customerId) };
+            => new() { Firstname = firstname, Surname = surname, EmailAddress = email, DateOfBirth = dateOfBirth, Customer = _customerRepository.GetById(customerId) };
 
         private void SetCreditLimit(User user)
         {
@@ -54,14 +54,9 @@ namespace ExerciseApp
         }
 
         private bool Validate(User user)
-        {
-            if (string.IsNullOrEmpty(user.Firstname) || string.IsNullOrEmpty(user.Surname)
-                || (user.EmailAddress.Contains("@") && !user.EmailAddress.Contains("."))
+            => (string.IsNullOrEmpty(user.Firstname) || string.IsNullOrEmpty(user.Surname)
+                || (!user.EmailAddress.Contains("@") || user.EmailAddress.LastIndexOf('.') < user.EmailAddress.IndexOf('@'))
                 || CalculateAge(user.DateOfBirth) < 21
-                || user.HasCreditLimit && user.CreditLimit < 500)
-                return false;
-
-            return true;
-        }
+                || user.HasCreditLimit && user.CreditLimit < 500);
     }
 }
