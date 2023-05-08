@@ -47,15 +47,15 @@ namespace ExerciseApp
         private int CalculateAge(DateTime dateOfBirth)
         {
             var now = DateTime.Now;
-            var age = now.Year - dateOfBirth.Year;
+            int age = now.Year - dateOfBirth.Year;
 
-            return now.DayOfYear < dateOfBirth.DayOfYear
+            return now.Month < dateOfBirth.Month || (now.Month == dateOfBirth.Month && now.Day < dateOfBirth.Day)
                 ? age-- : age;
         }
 
         private bool Validate(User user)
             => (string.IsNullOrEmpty(user.Firstname) || string.IsNullOrEmpty(user.Surname)
-                || (!user.EmailAddress.Contains("@") || user.EmailAddress.LastIndexOf('.') < user.EmailAddress.IndexOf('@'))
+                || (user.EmailAddress.Contains("@") && !user.EmailAddress.Contains("."))
                 || CalculateAge(user.DateOfBirth) < 21
                 || user.HasCreditLimit && user.CreditLimit < 500);
     }
