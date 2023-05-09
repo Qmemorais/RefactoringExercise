@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ExerciseApp
+namespace ExerciseApp.Entities
 {
     public class User
     {
