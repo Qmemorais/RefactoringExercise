@@ -8,13 +8,12 @@ namespace ExerciseApp
     {
         private readonly ICustomerRepositoryAdapter _customerRepository;
         private readonly IUserDataAccessAdapter _userDataAccess;
-        private readonly IUserCreditService _userCreditService;
+        private IUserCreditService _userCreditService;
 
         public UserService()
         {
             _customerRepository = new CustomerRepositoryAdapter();
             _userDataAccess = new UserDataAccessAdapter();
-            _userCreditService = new UserCreditServiceClient();
         }
 
         public UserService(ICustomerRepositoryAdapter customerRepository, 
@@ -48,7 +47,7 @@ namespace ExerciseApp
             {
                 // Do credit check
                 user.HasCreditLimit = true;
-
+                _userCreditService ??= new UserCreditServiceClient();
                 var creditLimit = _userCreditService.GetCreditLimit(user.Firstname, user.Surname, user.DateOfBirth);
 
                 if (user.Customer.Name == "ImportantCustomer")

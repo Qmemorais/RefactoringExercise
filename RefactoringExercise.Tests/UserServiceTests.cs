@@ -73,7 +73,7 @@ namespace RefactoringExercise.Tests
 
         private void SetupCustomer(int customerId, string Name)
         {
-            var customer = new Customer { Id = customerId, Name = Name, CustomerStatus = CustomerStatus.none };
+            var customer = new Customer { Id = customerId, Name = Name, CustomerStatus = CustomerStatus.None };
             _customerRepository.Setup(x => x.GetById(customerId)).Returns(customer);
         }
 
