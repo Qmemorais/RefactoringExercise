@@ -1,13 +1,29 @@
 ﻿using System;
+using ExerciseApp.Adapters;
+using ExerciseApp.Entities;
 
 namespace ExerciseApp
 {
     public class UserService
     {
-        private readonly CustomerRepository _customerRepository;
+        private readonly ICustomerRepositoryAdapter _customerRepository;
+        private readonly IUserDataAccessAdapter _userDataAccess;
+        private readonly IUserCreditService _userCreditService;
+
         public UserService()
         {
-            _customerRepository = new CustomerRepository();
+            _customerRepository = new CustomerRepositoryAdapter();
+            _userDataAccess = new UserDataAccessAdapter();
+            _userCreditService = new UserCreditServiceClient();
+        }
+
+        public UserService(ICustomerRepositoryAdapter customerRepository, 
+            IUserDataAccessAdapter userDataAccess, 
+            IUserCreditService userCreditService)
+        {
+            _customerRepository = customerRepository;
+            _userDataAccess = userDataAccess;
+            _userCreditService = userCreditService;
         }
 
         public bool AddUser(string firstname, string surname, string email, DateTime dateOfBirth, int customerId)
@@ -18,7 +34,7 @@ namespace ExerciseApp
 
             if (Validate(user)) return false;
 
-            UserDataAccess.AddUser(user);
+            _userDataAccess.AddUser(user);
 
             return true;
         }
@@ -33,9 +49,7 @@ namespace ExerciseApp
                 // Do credit check
                 user.HasCreditLimit = true;
 
-                using var userCreditService = new UserCreditServiceClient();
-
-                var creditLimit = userCreditService.GetCreditLimit(user.Firstname, user.Surname, user.DateOfBirth);
+                var creditLimit = _userCreditService.GetCreditLimit(user.Firstname, user.Surname, user.DateOfBirth);
 
                 if (user.Customer.Name == "ImportantCustomer")
                     creditLimit *= 2; //подвоїти кредитний ліміт
@@ -50,13 +64,13 @@ namespace ExerciseApp
             int age = now.Year - dateOfBirth.Year;
 
             return now.Month < dateOfBirth.Month || (now.Month == dateOfBirth.Month && now.Day < dateOfBirth.Day)
-                ? age-- : age;
+                ? age - 1 : age;
         }
 
         private bool Validate(User user)
             => (string.IsNullOrEmpty(user.Firstname) || string.IsNullOrEmpty(user.Surname)
                 || (user.EmailAddress.Contains("@") && !user.EmailAddress.Contains("."))
                 || CalculateAge(user.DateOfBirth) < 21
-                || user.HasCreditLimit && user.CreditLimit < 500);
+                || (user.HasCreditLimit && user.CreditLimit < 500));
     }
 }
